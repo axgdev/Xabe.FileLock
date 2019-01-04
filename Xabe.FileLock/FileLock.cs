@@ -84,11 +84,7 @@ namespace Xabe
         {
             if(!File.Exists(_path))
             {
-                if(!await _content.TrySetReleaseDate(DateTime.UtcNow + lockTime))
-                {
-                    return false;
-                }
-                return true;
+                return await _content.TrySetReleaseDate(DateTime.UtcNow + lockTime);
             }
             if(File.Exists(_path) &&
                await _content.GetReleaseDate() > DateTime.UtcNow)
