@@ -124,7 +124,7 @@ namespace Xabe
                 return false;
             }
 
-            var millisecondsToWait = (releaseDate - utcTimeNow).Milliseconds;            
+            var millisecondsToWait = (releaseDate - utcTimeNow).Milliseconds;
             await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0);
             return await TryAcquire(lockTime);
         }
