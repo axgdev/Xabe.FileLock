@@ -40,8 +40,7 @@ namespace Xabe
         /// </summary>
         /// <param name="lockTime">Amount of time after that lock is released</param>
         /// <param name="timeoutSeconds">Amount of seconds until timeout</param>
-        /// <param name="refreshContinuously">Specify if FileLock should automatically refresh lock</param>
         /// <returns>File lock. False if lock already exists</returns>
-        Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutSeconds = 0, bool refreshContinuously = false);
+        Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutSeconds);
     }
 }

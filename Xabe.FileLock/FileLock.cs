@@ -109,11 +109,11 @@ namespace Xabe
         }
 
         /// <inheritdoc />
-        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutSeconds = 0, bool refreshContinuously = false)
+        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutSeconds)
         {
             if (!File.Exists(_path))
             {
-                return await TryAcquire(lockTime, refreshContinuously);
+                return await TryAcquire(lockTime);
             }
 
             var utcTimeNow = DateTime.UtcNow;
@@ -126,7 +126,7 @@ namespace Xabe
 
             var millisecondsToWait = (releaseDate - utcTimeNow).Milliseconds;            
             await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0);
-            return await TryAcquire(lockTime, refreshContinuously);
+            return await TryAcquire(lockTime);
         }
 
         private void ContinuousRefreshTask(TimeSpan lockTime)
