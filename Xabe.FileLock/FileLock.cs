@@ -45,8 +45,10 @@ namespace Xabe
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
-            if(File.Exists(_path))
+            if (File.Exists(_path))
+            {
                 File.Delete(_path);
+            }
         }
 
         /// <inheritdoc />
@@ -72,9 +74,10 @@ namespace Xabe
         /// <inheritdoc />
         public async Task<bool> TryAcquire(DateTime releaseDate)
         {
-            if(File.Exists(_path) &&
-               await _content.GetReleaseDate() > DateTime.UtcNow)
+            if (File.Exists(_path) && await _content.GetReleaseDate() > DateTime.UtcNow)
+            {
                 return false;
+            }
 
             return await _content.TrySetReleaseDate(releaseDate);
         }
@@ -86,9 +89,12 @@ namespace Xabe
             {
                 return await _content.TrySetReleaseDate(DateTime.UtcNow + lockTime);
             }
-            if(File.Exists(_path) &&
-               await _content.GetReleaseDate() > DateTime.UtcNow)
+
+            if (File.Exists(_path) && await _content.GetReleaseDate() > DateTime.UtcNow)
+            {
                 return false;
+            }
+
             if(!await _content.TrySetReleaseDate(DateTime.UtcNow + lockTime))
             {
                 return false;
