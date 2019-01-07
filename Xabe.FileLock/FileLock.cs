@@ -109,7 +109,7 @@ namespace Xabe
         }
 
         /// <inheritdoc />
-        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds)
+        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds, uint retryMilliseconds = 0)
         {
             if (!File.Exists(_path))
             {
