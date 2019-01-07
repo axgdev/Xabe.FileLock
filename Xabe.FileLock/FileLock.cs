@@ -102,17 +102,23 @@ namespace Xabe
 
             if(refreshContinuously)
             {
-                var refreshTime = (int)(lockTime.TotalMilliseconds * 0.9);
-                Task.Run(async () =>
-                {
-                    while(!_cancellationTokenSource.IsCancellationRequested)
-                    {
-                        await AddTime(TimeSpan.FromMilliseconds(refreshTime));
-                        await Task.Delay(refreshTime);
-                    }
-                }, _cancellationTokenSource.Token);
+                ContinuousRefreshTask(lockTime);
             }
+
             return true;
+        }
+
+        private void ContinuousRefreshTask(TimeSpan lockTime)
+        {
+            var refreshTime = (int) (lockTime.TotalMilliseconds * 0.9);
+            Task.Run(async () =>
+            {
+                while (!_cancellationTokenSource.IsCancellationRequested)
+                {
+                    await AddTime(TimeSpan.FromMilliseconds(refreshTime));
+                    await Task.Delay(refreshTime);
+                }
+            }, _cancellationTokenSource.Token);
         }
 
         private string GetLockFileName(string path)
