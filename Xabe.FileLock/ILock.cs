@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Xabe
 {
     /// <summary>
-    ///     Implementetion of FileLock
+    ///     Implementation of FileLock
     /// </summary>
     public interface ILock : IDisposable
     {
