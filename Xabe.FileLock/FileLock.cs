@@ -116,37 +116,17 @@ namespace Xabe
                 return await TryAcquire(lockTime, refreshContinuously);
             }
 
-            var utcTimeWithTimeout = DateTime.UtcNow.AddSeconds(timeoutSeconds);
+            var utcTimeNow = DateTime.UtcNow;
+            var utcTimeWithTimeout = utcTimeNow.AddSeconds(timeoutSeconds);
             var releaseDate = await _content.GetReleaseDate();
             if (releaseDate > utcTimeWithTimeout)
             {
                 return false;
             }
 
-            var millisecondsToWait = GetMillisecondsToWait(timeoutSeconds, releaseDate);
-
-            await Task.Delay(millisecondsToWait);
-
+            var millisecondsToWait = (releaseDate - utcTimeNow).Milliseconds;            
+            await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0);
             return await TryAcquire(lockTime, refreshContinuously);
-        }
-
-        private static int GetMillisecondsToWait(int timeoutSeconds, DateTime releaseDate)
-        {
-            var millisecondsToWait = (releaseDate - DateTime.UtcNow).Milliseconds;
-            if (millisecondsToWait <= 0)
-            {
-                return 0;
-            }
-
-            //We add 10% to the original to make sure the timeout is enough to acquire the lock
-            //https://stackoverflow.com/a/4846569 <- This explains the math to do ceiling
-            var msToWaitExtended = (millisecondsToWait * 11 + 9) / 10;
-            if (msToWaitExtended < timeoutSeconds * 1000)
-            {
-                millisecondsToWait = msToWaitExtended;
-            }
-
-            return millisecondsToWait;
         }
 
         private void ContinuousRefreshTask(TimeSpan lockTime)
