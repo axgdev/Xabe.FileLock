@@ -39,8 +39,8 @@ namespace Xabe
         ///     Acquire lock with timeout
         /// </summary>
         /// <param name="lockTime">Amount of time after that lock is released</param>
-        /// <param name="timeoutSeconds">Amount of seconds until timeout</param>
+        /// <param name="timeoutMilliseconds">Amount of milliseconds until timeout</param>
         /// <returns>File lock. False if lock already exists</returns>
-        Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutSeconds);
+        Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds);
     }
 }

@@ -109,7 +109,7 @@ namespace Xabe
         }
 
         /// <inheritdoc />
-        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutSeconds)
+        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds)
         {
             if (!File.Exists(_path))
             {
@@ -117,7 +117,7 @@ namespace Xabe
             }
 
             var utcTimeNow = DateTime.UtcNow;
-            var utcTimeWithTimeout = utcTimeNow.AddSeconds(timeoutSeconds);
+            var utcTimeWithTimeout = utcTimeNow.AddMilliseconds(timeoutMilliseconds);
             var releaseDate = await _content.GetReleaseDate();
             if (releaseDate > utcTimeWithTimeout)
             {
