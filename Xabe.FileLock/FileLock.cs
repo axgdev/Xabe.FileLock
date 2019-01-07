@@ -111,6 +111,9 @@ namespace Xabe
         /// <inheritdoc />
         public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds, uint retryMilliseconds = 0)
         {
+            if (retryMilliseconds < 15 || retryMilliseconds >= timeoutMilliseconds)
+                throw new Exception($"Retry Milliseconds ({retryMilliseconds}ms) are lower than 15ms or higher than timeout ({timeoutMilliseconds} ms)");
+
             if (!File.Exists(_path))
             {
                 return await TryAcquire(lockTime);
