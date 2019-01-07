@@ -40,7 +40,7 @@ namespace Xabe
         /// </summary>
         /// <param name="lockTime">Amount of time after that lock is released</param>
         /// <param name="timeoutMilliseconds">Amount of milliseconds until timeout</param>
-        /// <param name="retryMilliseconds">Amount of milliseconds to wait to retry acquiring the lock</param>
+        /// <param name="retryMilliseconds">Amount of milliseconds to wait to retry acquiring the lock. Minimum: 15ms, Maximum: <paramref name="timeoutMilliseconds"/></param>
         /// <returns>File lock. False if lock already exists</returns>
         Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds, uint retryMilliseconds = 0);
     }
