@@ -14,7 +14,7 @@ namespace Xabe
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly LockModel _content;
         private readonly string _path;
-        private const int MinimumRetryMilliseconds = 15;
+        private const int MinimumMilliseconds = 15;
 
         private FileLock()
         {
@@ -118,7 +118,12 @@ namespace Xabe
         /// <inheritdoc />
         public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds)
         {
-            if (retryMilliseconds < MinimumRetryMilliseconds || retryMilliseconds > timeoutMilliseconds)
+            if (timeoutMilliseconds < MinimumMilliseconds)
+            {
+                throw new ArgumentOutOfRangeException(nameof(timeoutMilliseconds));
+            }
+
+            if (retryMilliseconds < MinimumMilliseconds || retryMilliseconds > timeoutMilliseconds)
             {
                 throw new ArgumentOutOfRangeException(nameof(retryMilliseconds));
             }
@@ -128,17 +133,47 @@ namespace Xabe
                 return await TryAcquire(lockTime);
             }
 
-            var utcTimeNow = DateTime.UtcNow;
-            var utcTimeWithTimeout = utcTimeNow.AddMilliseconds(timeoutMilliseconds);
+            var utcTimeWithTimeout = DateTime.UtcNow.AddMilliseconds(timeoutMilliseconds);
             var releaseDate = await _content.GetReleaseDate();
             if (releaseDate > utcTimeWithTimeout)
             {
                 return false;
             }
 
-            var millisecondsToWait = (releaseDate - utcTimeNow).Milliseconds;
+            var waitTillReleaseTryAcquire = WaitTillReleaseTryAcquire(lockTime, releaseDate);
+
+            if (retryMilliseconds == timeoutMilliseconds)
+            {
+                return await waitTillReleaseTryAcquire;
+            }
+
+            using (var cancellationTokenSource = new CancellationTokenSource())
+            {
+                var retryTask = RetryAcquireLock(lockTime, retryMilliseconds, cancellationTokenSource.Token);
+                var completedTask = await Task.WhenAny(waitTillReleaseTryAcquire, retryTask);
+                cancellationTokenSource.Cancel();
+                return await completedTask;  // Very important in order to propagate exceptions
+            }
+        }
+
+        private async Task<bool> WaitTillReleaseTryAcquire(TimeSpan lockTime, DateTime releaseDate)
+        {
+            var millisecondsToWait = (releaseDate - DateTime.UtcNow).Milliseconds;
             await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0);
             return await TryAcquire(lockTime);
+        }
+
+        private async Task<bool> RetryAcquireLock(TimeSpan lockTime, int retryMilliseconds, CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                if (await TryAcquire(lockTime))
+                {
+                    return true;
+                }
+                await Task.Delay(retryMilliseconds, cancellationToken);
+            }
+            return false;
         }
 
         private void ContinuousRefreshTask(TimeSpan lockTime)
