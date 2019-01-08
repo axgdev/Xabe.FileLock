@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Xabe
@@ -11,7 +9,7 @@ namespace Xabe
     /// </summary>
     public interface ILockWithTimeout : ILock
     {
-        ///See <see cref="M:TryToAcquireTimeout(TimeSpan, uint, uint)"/>
+        /// See <see cref="M:TryToAcquireTimeout(TimeSpan, uint, uint)" />
         Task<bool> TryAcquireOrTimeout(TimeSpan lockTime, int timeoutMilliseconds);
 
         /// <summary>

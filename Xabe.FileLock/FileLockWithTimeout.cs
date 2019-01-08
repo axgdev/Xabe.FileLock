@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,10 +12,10 @@ namespace Xabe
     public class FileLockWithTimeout : ILockWithTimeout
     {
         private const string Extension = "lock";
+        private const int MinimumMilliseconds = 15;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly LockModel _content;
         private readonly string _path;
-        private const int MinimumMilliseconds = 15;
 
         private FileLockWithTimeout()
         {
@@ -155,7 +153,7 @@ namespace Xabe
                 var retryTask = RetryAcquireLock(lockTime, retryMilliseconds, cancellationTokenSource.Token);
                 var completedTask = await Task.WhenAny(waitTillReleaseTryAcquire, retryTask);
                 cancellationTokenSource.Cancel();
-                return await completedTask;  // Very important in order to propagate exceptions
+                return await completedTask; // Very important in order to propagate exceptions
             }
         }
 
@@ -181,7 +179,7 @@ namespace Xabe
 
         private void ContinuousRefreshTask(TimeSpan lockTime)
         {
-            var refreshTime = (int)(lockTime.TotalMilliseconds * 0.9);
+            var refreshTime = (int) (lockTime.TotalMilliseconds * 0.9);
             Task.Run(async () =>
             {
                 while (!_cancellationTokenSource.IsCancellationRequested)
