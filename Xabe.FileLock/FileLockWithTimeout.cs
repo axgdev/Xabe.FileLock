@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 
 namespace Xabe
 {
-    class FileLockWithTimeout : ILockWithTimeout
+    /// <inheritdoc />
+    /// <summary>
+    ///     Providing file locks
+    /// </summary>
+    public class FileLockWithTimeout : ILockWithTimeout
     {
         private const string Extension = "lock";
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();

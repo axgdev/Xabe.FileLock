@@ -5,7 +5,11 @@ using System.Threading.Tasks;
 
 namespace Xabe
 {
-    interface ILockWithTimeout: ILock
+    /// <inheritdoc />
+    /// <summary>
+    ///     Extend functionality by adding timeout to <see cref="ILock"/>
+    /// </summary>
+    public interface ILockWithTimeout : ILock
     {
         ///See <see cref="M:TryToAcquireTimeout(TimeSpan, uint, uint)"/>
         Task<bool> TryAcquireOrTimeout(TimeSpan lockTime, int timeoutMilliseconds);
