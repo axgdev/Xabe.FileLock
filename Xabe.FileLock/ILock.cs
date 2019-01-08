@@ -35,6 +35,9 @@ namespace Xabe
         /// <returns>File lock. False if lock already exists.</returns>
         Task<bool> TryAcquire(TimeSpan lockTime, bool refreshContinuously = false);
 
+        ///See <see cref="M:TryToAcquireTimeout(TimeSpan, uint, uint)"/>
+        Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds);
+
         /// <summary>
         ///     Acquire lock with timeout. Maximum resolution around 15ms for Windows (Task.Delay)
         /// </summary>
