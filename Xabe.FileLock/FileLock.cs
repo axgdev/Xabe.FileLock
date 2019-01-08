@@ -14,6 +14,7 @@ namespace Xabe
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly LockModel _content;
         private readonly string _path;
+        private const int MinimumRetryMilliseconds = 15;
 
         private FileLock()
         {
@@ -111,8 +112,10 @@ namespace Xabe
         /// <inheritdoc />
         public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds, uint retryMilliseconds)
         {
-            if (retryMilliseconds < 15 || retryMilliseconds >= timeoutMilliseconds)
-                throw new Exception($"Retry Milliseconds ({retryMilliseconds}ms) are lower than 15ms or higher than timeout ({timeoutMilliseconds} ms)");
+            if (retryMilliseconds < MinimumRetryMilliseconds || retryMilliseconds > timeoutMilliseconds)
+            {
+                throw new ArgumentOutOfRangeException(nameof(retryMilliseconds));
+            }
 
             if (!File.Exists(_path))
             {
