@@ -110,13 +110,13 @@ namespace Xabe
         }
 
         /// <inheritdoc />
-        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds)
+        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutMilliseconds)
         {
             return await TryAcquireWithTimeout(lockTime, timeoutMilliseconds, timeoutMilliseconds);
         }
 
         /// <inheritdoc />
-        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds, uint retryMilliseconds)
+        public async Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds)
         {
             if (retryMilliseconds < MinimumRetryMilliseconds || retryMilliseconds > timeoutMilliseconds)
             {

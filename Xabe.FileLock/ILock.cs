@@ -36,7 +36,7 @@ namespace Xabe
         Task<bool> TryAcquire(TimeSpan lockTime, bool refreshContinuously = false);
 
         ///See <see cref="M:TryToAcquireTimeout(TimeSpan, uint, uint)"/>
-        Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds);
+        Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutMilliseconds);
 
         /// <summary>
         ///     Acquire lock with timeout. Maximum resolution around 15ms for Windows (Task.Delay)
@@ -45,6 +45,6 @@ namespace Xabe
         /// <param name="timeoutMilliseconds">Amount of milliseconds until timeout</param>
         /// <param name="retryMilliseconds">Amount of milliseconds to wait to retry acquiring the lock. Minimum: 15ms, Maximum: <paramref name="timeoutMilliseconds"/></param>
         /// <returns>File lock. False if lock already exists</returns>
-        Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, uint timeoutMilliseconds, uint retryMilliseconds);
+        Task<bool> TryAcquireWithTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds);
     }
 }
