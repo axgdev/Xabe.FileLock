@@ -9,7 +9,10 @@ namespace Xabe
     /// </summary>
     public interface ILockWithTimeout : ILock
     {
+        /// <summary>
+        /// A method overload that tries once to wait for the release until timeout,
         /// See <see cref="M:TryToAcquireTimeout(TimeSpan, uint, uint)" />
+        /// </summary>
         Task<bool> TryAcquireOrTimeout(TimeSpan lockTime, int timeoutMilliseconds);
 
         /// <summary>
