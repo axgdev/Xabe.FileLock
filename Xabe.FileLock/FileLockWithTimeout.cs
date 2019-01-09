@@ -42,21 +42,12 @@ namespace Xabe
 
         /// <inheritdoc />
         /// <summary>
-        ///     Stop refreshing lock and delete lock file, if not in use, hence IOException ignored
+        ///     Stop refreshing lock and set release date to now for other process to use lock
         /// </summary>
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
-            if (!File.Exists(_path))
-            {
-                return;
-            }
-
-            try
-            {
-                File.Delete(_path);
-            }
-            catch (IOException) { }
+            ReleaseLock();
         }
 
         /// <inheritdoc />
@@ -198,6 +189,21 @@ namespace Xabe
                     await Task.Delay(refreshTime);
                 }
             }, _cancellationTokenSource.Token);
+        }
+
+        private void ReleaseLock()
+        {
+            if (IsLockStillValid().Result)
+            {
+                _content.TrySetReleaseDate(DateTime.UtcNow).Wait();
+            }
+        }
+
+        private async Task<bool> IsLockStillValid()
+        {
+            return _content.CachedReleaseDate != DateTime.MinValue &&
+                   File.Exists(_path) &&
+                   _content.CachedReleaseDate == await GetReleaseDate();
         }
 
         private string GetLockFileName(string path)
