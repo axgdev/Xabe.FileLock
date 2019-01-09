@@ -42,7 +42,7 @@ namespace Xabe
 
         /// <inheritdoc />
         /// <summary>
-        ///     Stop refreshing lock and set release date to now for other process to use lock
+        ///     Stop refreshing lock and delete lock when it makes sense. IOException is ignored for cases when file in use
         /// </summary>
         public void Dispose()
         {
@@ -175,6 +175,7 @@ namespace Xabe
                 }
                 await Task.Delay(retryMilliseconds, cancellationToken);
             }
+
             return false;
         }
 
@@ -193,9 +194,17 @@ namespace Xabe
 
         private void ReleaseLock()
         {
-            if (IsLockStillValid().Result)
+            if (!IsLockStillValid().Result)
+            {
+                return;
+            }
+
+            try
             {
                 File.Delete(_path);
+            }
+            catch (IOException)
+            {
             }
         }
 
