@@ -195,7 +195,7 @@ namespace Xabe
         {
             if (IsLockStillValid().Result)
             {
-                _content.TrySetReleaseDate(DateTime.UtcNow).Wait();
+                File.Delete(_path);
             }
         }
 
