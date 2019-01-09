@@ -42,15 +42,21 @@ namespace Xabe
 
         /// <inheritdoc />
         /// <summary>
-        ///     Stop refreshing lock and delete lock file
+        ///     Stop refreshing lock and delete lock file, if not in use, hence IOException ignored
         /// </summary>
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
-            if (File.Exists(_path))
+            if (!File.Exists(_path))
+            {
+                return;
+            }
+
+            try
             {
                 File.Delete(_path);
             }
+            catch (IOException) { }
         }
 
         /// <inheritdoc />
