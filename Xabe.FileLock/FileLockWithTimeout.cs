@@ -14,7 +14,7 @@ namespace Xabe
         private const string Extension = "lock";
         private const int MinimumMilliseconds = 15;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly LockModel _content;
+        private readonly TimeoutLockModel _content;
         private readonly string _path;
 
         private FileLockWithTimeout()
@@ -37,7 +37,7 @@ namespace Xabe
         public FileLockWithTimeout(string path)
         {
             _path = GetLockFileName(path);
-            _content = new LockModel(_path);
+            _content = new TimeoutLockModel(_path);
         }
 
         /// <inheritdoc />
