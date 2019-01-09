@@ -159,7 +159,7 @@ namespace Xabe
 
         private async Task<bool> WaitTillReleaseTryAcquire(TimeSpan lockTime, DateTime releaseDate)
         {
-            var millisecondsToWait = (releaseDate - DateTime.UtcNow).Milliseconds;
+            var millisecondsToWait = (int) Math.Ceiling((releaseDate - DateTime.UtcNow).TotalMilliseconds);
             await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0);
             return await TryAcquire(lockTime);
         }
