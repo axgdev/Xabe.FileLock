@@ -7,18 +7,47 @@ using Xunit.Abstractions;
 
 namespace Xabe.Test
 {
-    public class FileLockWithTimeoutTests
+    public class AcquireBeforeReleased
     {
-        private readonly ITestOutputHelper _output;
-        private readonly TimeSpan _timeVariable = TimeSpan.FromSeconds(5);
-        private const string Extension = "lock";
-        private readonly Stopwatch _stopwatch = new Stopwatch();
-
-        public FileLockWithTimeoutTests(ITestOutputHelper output)
+        [Theory]
+        [InlineData(70)]
+        [InlineData(100)]
+        [InlineData(150)]
+        [InlineData(200)]
+        public async void TryToAcquireLockBeforeItIsReleased(int lockMilliseconds)
         {
-            _output = output;
+            var timeout = lockMilliseconds - 10;
+            var file = new FileInfo(Path.GetTempFileName());
+            var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
+            var secondFileLock =
+                await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds),
+                    timeout);
+            Assert.False(secondFileLock);
+            Assert.True(await firstAcquireTask);
         }
+    }
 
+    public class AcquireAfterReleased
+    {
+        [Theory]
+        [InlineData(30)]
+        [InlineData(50)]
+        [InlineData(70)]
+        [InlineData(100)]
+        [InlineData(150)]
+        [InlineData(200)]
+        public async void TryToAcquireLockAfterItIsReleased(int lockMilliseconds)
+        {
+            var timeout = lockMilliseconds * 10;
+            var file = new FileInfo(Path.GetTempFileName());
+            var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
+            var secondFileLock = await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
+            Assert.True(secondFileLock);
+            Assert.True(await firstAcquireTask);
+        }
+    }
+
+    public class AcquireJustWhenReleased {
         [Theory]
         [InlineData(15)]
         [InlineData(30)]
@@ -27,25 +56,23 @@ namespace Xabe.Test
         [InlineData(100)]
         [InlineData(150)]
         [InlineData(200)]
-        //[InlineData(5_000)]
-        //[InlineData(10_000)]
-        public async void Acquire2LockAndOtherProcessWaitForReleaseUntilTimeout(int lockMilliseconds)
+        public async void TryAcquireLockJustWhenReleased(int lockMilliseconds)
         {
             var timeout = 10 * lockMilliseconds;
-
             var file = new FileInfo(Path.GetTempFileName());
-            var firstAcquireTask = AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
-            
-
+            var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
             var secondFileLock = await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
             Assert.True(secondFileLock);
             Assert.True(await firstAcquireTask);
         }
+    }
 
-        public async Task<bool> AcquireLockAndReleaseAfterDelay(FileInfo file, int lockMilliseconds)
+    public class Helpers
+    {
+        public static async Task<bool> AcquireLockAndReleaseAfterDelay(FileInfo file, int lockMilliseconds)
         {
             ILockWithTimeout fileLock = new FileLockWithTimeout(file);
-            if (!await fileLock.TryAcquire(TimeSpan.FromMilliseconds(lockMilliseconds), true))
+            if (!fileLock.TryAcquire(TimeSpan.FromMilliseconds(lockMilliseconds)).Result)
             {
                 return false;
             }
