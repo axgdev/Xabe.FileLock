@@ -13,7 +13,6 @@ namespace Xabe.Test
         [InlineData(70)]
         [InlineData(100)]
         [InlineData(150)]
-        [InlineData(200)]
         public async void TryToAcquireLockBeforeItIsReleased(int lockMilliseconds)
         {
             var timeout = lockMilliseconds - 10;
@@ -33,7 +32,6 @@ namespace Xabe.Test
         [InlineData(70)]
         [InlineData(100)]
         [InlineData(150)]
-        [InlineData(200)]
         public async void TryToAcquireLockAfterItIsReleased(int lockMilliseconds)
         {
             var timeout = lockMilliseconds * 10;
@@ -47,13 +45,10 @@ namespace Xabe.Test
 
     public class AcquireJustWhenReleased {
         [Theory]
-        [InlineData(15)]
-        [InlineData(30)]
         [InlineData(50)]
         [InlineData(70)]
         [InlineData(100)]
         [InlineData(150)]
-        [InlineData(200)]
         public async void TryAcquireLockJustWhenReleased(int lockMilliseconds)
         {
             var timeout = lockMilliseconds;
