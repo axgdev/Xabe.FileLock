@@ -139,11 +139,6 @@ namespace Xabe
                 return false;
             }
 
-            return await RunAcquireUntilTimeout(lockTime, timeoutMilliseconds, retryMilliseconds, releaseDate);
-        }
-
-        private async Task<bool> RunAcquireUntilTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds, DateTime releaseDate)
-        {
             using (var cancellationTokenSource = new CancellationTokenSource(timeoutMilliseconds))
             {
                 var isRetryBeforeAcquire = retryMilliseconds == timeoutMilliseconds;
