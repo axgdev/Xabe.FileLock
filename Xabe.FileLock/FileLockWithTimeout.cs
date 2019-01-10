@@ -89,12 +89,15 @@ namespace Xabe
                 return await _content.TrySetReleaseDate(DateTime.UtcNow + lockTime);
             }
 
-            if (File.Exists(_path) && await _content.GetReleaseDate() > DateTime.UtcNow)
+            var releaseDate = await _content.GetReleaseDate();
+            var utcTimeNow = DateTime.UtcNow;
+            
+            if (releaseDate > utcTimeNow)
             {
                 return false;
             }
 
-            if (!await _content.TrySetReleaseDate(DateTime.UtcNow + lockTime))
+            if (!await _content.TrySetReleaseDate(utcTimeNow + lockTime))
             {
                 return false;
             }
