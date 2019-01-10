@@ -147,9 +147,9 @@ namespace Xabe
                     var retryTask = RetryAcquireLock(lockTime, retryMilliseconds, cancellationTokenSource.Token);
                     tasksToExecute.Add(retryTask);
                 }
-                var waitTillReleaseTryAcquire = WaitTillReleaseTryAcquire(lockTime, releaseDate, cancellationTokenSource.Token);
+                var waitTillReleaseAcquire = WaitTillReleaseAcquire(lockTime, releaseDate, cancellationTokenSource.Token);
                 var timeoutTask = TimeoutTask(timeoutMilliseconds, cancellationTokenSource.Token);
-                tasksToExecute.Add(waitTillReleaseTryAcquire);
+                tasksToExecute.Add(waitTillReleaseAcquire);
                 tasksToExecute.Add(timeoutTask);
 
                 var completedTask = await Task.WhenAny(tasksToExecute);
@@ -168,7 +168,7 @@ namespace Xabe
             return false;
         }
 
-        private async Task<bool> WaitTillReleaseTryAcquire(TimeSpan lockTime, DateTime releaseDate, CancellationToken cancellationToken)
+        private async Task<bool> WaitTillReleaseAcquire(TimeSpan lockTime, DateTime releaseDate, CancellationToken cancellationToken)
         {
             var millisecondsToWait = (int) Math.Ceiling((releaseDate - DateTime.UtcNow).TotalMilliseconds);
             await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0, cancellationToken);
