@@ -139,6 +139,11 @@ namespace Xabe
                 return false;
             }
 
+            return await RunAcquireUntilTimeout(lockTime, timeoutMilliseconds, retryMilliseconds, releaseDate);
+        }
+
+        private async Task<bool> RunAcquireUntilTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds, DateTime releaseDate)
+        {
             using (var cancellationTokenSource = new CancellationTokenSource())
             {
                 var tasksToExecute = new List<Task<bool>>(3);
@@ -157,6 +162,7 @@ namespace Xabe
                 {
                     throw new Exception("Task should have not been canceled");
                 }
+
                 cancellationTokenSource.Cancel();
                 return await completedTask; // Very important in order to propagate exceptions
             }
