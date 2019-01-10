@@ -141,8 +141,8 @@ namespace Xabe
 
             using (var cancellationTokenSource = new CancellationTokenSource(timeoutMilliseconds))
             {
-                var isRetryBeforeAcquire = retryMilliseconds == timeoutMilliseconds;
-                return isRetryBeforeAcquire
+                var isWaitBeforeRelease = retryMilliseconds == timeoutMilliseconds;
+                return isWaitBeforeRelease
                     ? await WaitTillReleaseAcquire(lockTime, releaseDate, cancellationTokenSource.Token)
                     : await RetryBeforeRelease(lockTime, releaseDate, retryMilliseconds, cancellationTokenSource.Token);
             }
