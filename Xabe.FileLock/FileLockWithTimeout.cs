@@ -12,7 +12,7 @@ namespace Xabe
     public class FileLockWithTimeout : ILockWithTimeout
     {
         private const string Extension = "lock";
-        private const int MinimumMilliseconds = 15;
+        private const int MinimumMilliseconds = 50;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly TimeoutLockModel _content;
         private readonly string _path;
