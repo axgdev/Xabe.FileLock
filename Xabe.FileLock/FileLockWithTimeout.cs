@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -89,21 +90,12 @@ namespace Xabe
                 return await _content.TrySetReleaseDate(DateTime.UtcNow + lockTime);
             }
 
-            var releaseDate = await _content.GetReleaseDate();
-            var utcTimeNow = DateTime.UtcNow;
-            
-            if (releaseDate > utcTimeNow)
+            if (await _content.GetReleaseDate() > DateTime.UtcNow)
             {
                 return false;
             }
 
-            //180109: Additional milliseconds to make sure we don't collide with file deletion
-            if (releaseDate <= utcTimeNow.AddMilliseconds(MinimumMilliseconds))
-            {
-                await Task.Delay(MinimumMilliseconds);
-            }
-
-            if (!await _content.TrySetReleaseDate(utcTimeNow + lockTime))
+            if (!await _content.TrySetReleaseDate(DateTime.UtcNow + lockTime))
             {
                 return false;
             }
@@ -134,7 +126,7 @@ namespace Xabe
             {
                 throw new ArgumentOutOfRangeException(nameof(retryMilliseconds));
             }
-
+            
             if (!File.Exists(_path))
             {
                 return await TryAcquire(lockTime);
@@ -147,18 +139,20 @@ namespace Xabe
                 return false;
             }
 
-            var waitTillReleaseTryAcquire = WaitTillReleaseTryAcquire(lockTime, releaseDate);
-
-            if (retryMilliseconds == timeoutMilliseconds)
-            {
-                return await waitTillReleaseTryAcquire;
-            }
-
             using (var cancellationTokenSource = new CancellationTokenSource())
             {
-                var retryTask = RetryAcquireLock(lockTime, retryMilliseconds, cancellationTokenSource.Token);
+                var tasksToExecute = new List<Task<bool>>(3);
+                if (retryMilliseconds != timeoutMilliseconds)
+                {
+                    var retryTask = RetryAcquireLock(lockTime, retryMilliseconds, cancellationTokenSource.Token);
+                    tasksToExecute.Add(retryTask);
+                }
+                var waitTillReleaseTryAcquire = WaitTillReleaseTryAcquire(lockTime, releaseDate, cancellationTokenSource.Token);
                 var timeoutTask = TimeoutTask(timeoutMilliseconds, cancellationTokenSource.Token);
-                var completedTask = await Task.WhenAny(waitTillReleaseTryAcquire, retryTask, timeoutTask);
+                tasksToExecute.Add(waitTillReleaseTryAcquire);
+                tasksToExecute.Add(timeoutTask);
+
+                var completedTask = await Task.WhenAny(tasksToExecute);
                 if (completedTask.IsCanceled)
                 {
                     throw new Exception("Task should have not been canceled");
@@ -174,11 +168,20 @@ namespace Xabe
             return false;
         }
 
-        private async Task<bool> WaitTillReleaseTryAcquire(TimeSpan lockTime, DateTime releaseDate)
+        private async Task<bool> WaitTillReleaseTryAcquire(TimeSpan lockTime, DateTime releaseDate, CancellationToken cancellationToken)
         {
             var millisecondsToWait = (int) Math.Ceiling((releaseDate - DateTime.UtcNow).TotalMilliseconds);
-            await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0);
-            return await TryAcquire(lockTime);
+            await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0, cancellationToken);
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                if (await TryAcquire(lockTime))
+                {
+                    return true;
+                }
+                await Task.Delay(MinimumMilliseconds, cancellationToken);
+            }
+
+            return false;
         }
 
         private async Task<bool> RetryAcquireLock(TimeSpan lockTime, int retryMilliseconds, CancellationToken cancellationToken)
