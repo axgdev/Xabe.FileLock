@@ -97,6 +97,12 @@ namespace Xabe
                 return false;
             }
 
+            //180109: Additional milliseconds to make sure we don't collide with file deletion
+            if (releaseDate <= utcTimeNow.AddMilliseconds(MinimumMilliseconds))
+            {
+                await Task.Delay(MinimumMilliseconds);
+            }
+
             if (!await _content.TrySetReleaseDate(utcTimeNow + lockTime))
             {
                 return false;
