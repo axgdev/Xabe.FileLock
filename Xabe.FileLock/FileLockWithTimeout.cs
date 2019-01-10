@@ -157,7 +157,8 @@ namespace Xabe
             using (var cancellationTokenSource = new CancellationTokenSource())
             {
                 var retryTask = RetryAcquireLock(lockTime, retryMilliseconds, cancellationTokenSource.Token);
-                var completedTask = await Task.WhenAny(waitTillReleaseTryAcquire, retryTask);
+                var timeoutTask = TimeoutTask(timeoutMilliseconds, cancellationTokenSource.Token);
+                var completedTask = await Task.WhenAny(waitTillReleaseTryAcquire, retryTask, timeoutTask);
                 if (completedTask.IsCanceled)
                 {
                     throw new Exception("Task should have not been canceled");
@@ -165,6 +166,12 @@ namespace Xabe
                 cancellationTokenSource.Cancel();
                 return await completedTask; // Very important in order to propagate exceptions
             }
+        }
+
+        private async Task<bool> TimeoutTask(int timeoutMilliseconds, CancellationToken cancellationToken)
+        {
+            await Task.Delay(timeoutMilliseconds, cancellationToken);
+            return false;
         }
 
         private async Task<bool> WaitTillReleaseTryAcquire(TimeSpan lockTime, DateTime releaseDate)
