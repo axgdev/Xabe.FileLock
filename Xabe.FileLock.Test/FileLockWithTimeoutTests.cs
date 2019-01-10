@@ -58,7 +58,7 @@ namespace Xabe.Test
         [InlineData(200)]
         public async void TryAcquireLockJustWhenReleased(int lockMilliseconds)
         {
-            var timeout = 10 * lockMilliseconds;
+            var timeout = lockMilliseconds;
             var file = new FileInfo(Path.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
             var secondFileLock = await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
