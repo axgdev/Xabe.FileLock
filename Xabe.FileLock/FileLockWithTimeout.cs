@@ -144,36 +144,13 @@ namespace Xabe
 
         private async Task<bool> RunAcquireUntilTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds, DateTime releaseDate)
         {
-            using (var cancellationTokenSource = new CancellationTokenSource())
+            using (var cancellationTokenSource = new CancellationTokenSource(timeoutMilliseconds))
             {
-                Task<bool>[] tasksToExecute;
-                var timeoutTask = TimeoutTask(timeoutMilliseconds, cancellationTokenSource.Token);
-                if (retryMilliseconds == timeoutMilliseconds)
-                {
-                    var waitTillReleaseAcquire = WaitTillReleaseAcquire(lockTime, releaseDate, cancellationTokenSource.Token);
-                    tasksToExecute = new[] { waitTillReleaseAcquire, timeoutTask };
-                }
-                else
-                {
-                    var retryTask = RetryBeforeRelease(lockTime, releaseDate, retryMilliseconds, cancellationTokenSource.Token);
-                    tasksToExecute = new[] { retryTask, timeoutTask };
-                }
-
-                var completedTask = await Task.WhenAny(tasksToExecute);
-                if (completedTask.IsCanceled)
-                {
-                    throw new Exception("Task should have not been canceled");
-                }
-
-                cancellationTokenSource.Cancel();
-                return await completedTask; // Very important in order to propagate exceptions
+                var isRetryBeforeAcquire = retryMilliseconds == timeoutMilliseconds;
+                return isRetryBeforeAcquire
+                    ? await WaitTillReleaseAcquire(lockTime, releaseDate, cancellationTokenSource.Token)
+                    : await RetryBeforeRelease(lockTime, releaseDate, retryMilliseconds, cancellationTokenSource.Token);
             }
-        }
-
-        private async Task<bool> TimeoutTask(int timeoutMilliseconds, CancellationToken cancellationToken)
-        {
-            await Task.Delay(timeoutMilliseconds, cancellationToken);
-            return false;
         }
 
         private async Task<bool> RetryBeforeRelease(TimeSpan lockTime, DateTime releaseDate, int retryMilliseconds,
