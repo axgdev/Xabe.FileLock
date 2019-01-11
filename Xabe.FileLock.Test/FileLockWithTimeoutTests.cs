@@ -53,14 +53,11 @@ namespace Xabe.Test
         {
             var timeout = lockMilliseconds;
             var file = new FileInfo(Path.GetTempFileName());
-            var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
-            var secondFileLock = new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
-            var completedTask = await Task.WhenAny(firstAcquireTask, secondFileLock);
-            if (completedTask == firstAcquireTask)
-            {
-                Assert.True(await secondFileLock);
-            }
-            Assert.True(await firstAcquireTask);
+            var firstAcquireTask = await Helpers.AcquireLockAndReleaseAfterDelay(file, FileLockWithTimeout.MinimumMilliseconds);
+            var secondFileLock = await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
+
+            Assert.True(firstAcquireTask);
+            Assert.True(secondFileLock);
         }
     }
 
