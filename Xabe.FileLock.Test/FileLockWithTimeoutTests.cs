@@ -10,6 +10,8 @@ namespace Xabe.Test
     public class AcquireBeforeReleased
     {
         [Theory]
+        [InlineData(30)]
+        [InlineData(50)]
         [InlineData(70)]
         [InlineData(100)]
         [InlineData(150)]
@@ -45,6 +47,7 @@ namespace Xabe.Test
 
     public class AcquireJustWhenReleased {
         [Theory]
+        [InlineData(30)]
         [InlineData(50)]
         [InlineData(70)]
         [InlineData(100)]
