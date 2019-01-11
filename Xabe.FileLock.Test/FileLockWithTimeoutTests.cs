@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Xabe.Test
 {
-    public class AcquireBeforeReleased
+    public class AcquireBeforeReleased : FileCleanDisposable
     {
         [Theory]
         [InlineData(30)]
@@ -18,7 +18,7 @@ namespace Xabe.Test
         public async void TryToAcquireLockBeforeItIsReleased(int lockMilliseconds)
         {
             var timeout = FileLockWithTimeout.MinimumMilliseconds;
-            var file = new FileInfo(Path.GetTempFileName());
+            var file = new FileInfo(FileLockTestPath.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
             using (var secondLock = new FileLockWithTimeout(file))
             {
@@ -26,11 +26,10 @@ namespace Xabe.Test
                 Assert.False(secondFileLock);
             }
             Assert.True(await firstAcquireTask);
-            file.Delete();
         }
     }
 
-    public class AcquireAfterReleased
+    public class AcquireAfterReleased : FileCleanDisposable
     {
         [Theory]
         [InlineData(30)]
@@ -41,7 +40,7 @@ namespace Xabe.Test
         public async void TryToAcquireLockAfterItIsReleased(int lockMilliseconds)
         {
             var timeout = lockMilliseconds * 10;
-            var file = new FileInfo(Path.GetTempFileName());
+            var file = new FileInfo(FileLockTestPath.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, 0);
             using (var secondLock = new FileLockWithTimeout(file))
             {
@@ -50,11 +49,11 @@ namespace Xabe.Test
             }
 
             Assert.True(await firstAcquireTask);
-            file.Delete();
         }
     }
 
-    public class AcquireJustWhenReleased {
+    public class AcquireJustWhenReleased : FileCleanDisposable
+    {
         [Theory]
         [InlineData(30)]
         [InlineData(50)]
@@ -64,7 +63,7 @@ namespace Xabe.Test
         public async void TryAcquireLockJustWhenReleased(int lockMilliseconds)
         {
             var timeout = lockMilliseconds;
-            var file = new FileInfo(Path.GetTempFileName());
+            var file = new FileInfo(FileLockTestPath.GetTempFileName());
             var firstAcquireTask = await Helpers.AcquireLockAndReleaseAfterDelay(file, FileLockWithTimeout.MinimumMilliseconds);
             using (var secondLock = new FileLockWithTimeout(file))
             {
@@ -73,7 +72,6 @@ namespace Xabe.Test
             }
 
             Assert.True(firstAcquireTask);
-            file.Delete();
         }
     }
 
