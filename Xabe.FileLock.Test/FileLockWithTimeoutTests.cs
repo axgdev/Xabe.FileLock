@@ -20,9 +20,13 @@ namespace Xabe.Test
             var timeout = FileLockWithTimeout.MinimumMilliseconds;
             var file = new FileInfo(Path.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
-            var secondFileLock = await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
-            Assert.False(secondFileLock);
+            using (var secondLock = new FileLockWithTimeout(file))
+            {
+                var secondFileLock = await secondLock.TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
+                Assert.False(secondFileLock);
+            }
             Assert.True(await firstAcquireTask);
+            file.Delete();
         }
     }
 
@@ -39,9 +43,14 @@ namespace Xabe.Test
             var timeout = lockMilliseconds * 10;
             var file = new FileInfo(Path.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, 0);
-            var secondFileLock = await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
-            Assert.True(secondFileLock);
+            using (var secondLock = new FileLockWithTimeout(file))
+            {
+                var secondFileLock = await secondLock.TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
+                Assert.True(secondFileLock);
+            }
+
             Assert.True(await firstAcquireTask);
+            file.Delete();
         }
     }
 
@@ -57,10 +66,14 @@ namespace Xabe.Test
             var timeout = lockMilliseconds;
             var file = new FileInfo(Path.GetTempFileName());
             var firstAcquireTask = await Helpers.AcquireLockAndReleaseAfterDelay(file, FileLockWithTimeout.MinimumMilliseconds);
-            var secondFileLock = await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
+            using (var secondLock = new FileLockWithTimeout(file))
+            {
+                var secondFileLock = await secondLock.TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
+                Assert.True(secondFileLock);
+            }
 
             Assert.True(firstAcquireTask);
-            Assert.True(secondFileLock);
+            file.Delete();
         }
     }
 
