@@ -156,12 +156,13 @@ namespace Xabe
         private async Task<bool> TryToAcquireBeforeTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds,
             DateTime releaseDate)
         {
-            using (var cancellationTokenSource = new CancellationTokenSource(timeoutMilliseconds))
+            using (var cts = new CancellationTokenSource(timeoutMilliseconds))
+            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, _cancellationTokenSource.Token))
             {
                 var isWaitBeforeRelease = retryMilliseconds == timeoutMilliseconds;
                 return isWaitBeforeRelease
-                    ? await WaitTillReleaseAcquire(lockTime, releaseDate, cancellationTokenSource.Token)
-                    : await RetryBeforeRelease(lockTime, releaseDate, retryMilliseconds, cancellationTokenSource.Token);
+                    ? await WaitTillReleaseAcquire(lockTime, releaseDate, linkedCts.Token)
+                    : await RetryBeforeRelease(lockTime, releaseDate, retryMilliseconds, linkedCts.Token);
             }
         }
 
