@@ -2,27 +2,11 @@ using System;
 using System.IO;
 using System.Threading;
 using Xunit;
+using Path = Xabe.Test.FileLockTestPath;
 
 namespace Xabe.Test
 {
-    public class Path
-    {
-        public static readonly string TempFolderPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "FileLockTests");
-
-        public static string GetTempFileName()
-        {
-            if (!Directory.Exists(TempFolderPath))
-            {
-                Directory.CreateDirectory(TempFolderPath);
-            }
-            var fileInfo = new FileInfo(System.IO.Path.Combine(TempFolderPath, System.IO.Path.GetRandomFileName()));
-            fileInfo.Create();
-            return fileInfo.Name;
-        }
-        public static string ChangeExtension(string path, string extension) => System.IO.Path.ChangeExtension(path, extension);
-    }
-
-    public class FileLockTests
+    public class FileLockTests: FileCleanDisposable
     {
         private readonly TimeSpan _timeVariable = TimeSpan.FromSeconds(5);
         private const string Extension = "lock";
@@ -164,16 +148,6 @@ namespace Xabe.Test
             await fileLock.TryAcquire(TimeSpan.FromHours(1));
             DateTime dateTime = await fileLock.GetReleaseDate();
             Assert.NotEqual(DateTime.MaxValue, dateTime);
-        }
-
-        [Fact]
-        public void CleanTestFolder()
-        {
-            if (Directory.Exists(Path.TempFolderPath))
-            {
-                Directory.Delete(Path.TempFolderPath, true);
-            }
-            Assert.False(Directory.Exists(Path.TempFolderPath));
         }
     }
 }
