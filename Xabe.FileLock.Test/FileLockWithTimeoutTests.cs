@@ -15,7 +15,7 @@ namespace Xabe.Test
         [InlineData(150)]
         public async void TryToAcquireLockBeforeItIsReleased(int lockMilliseconds)
         {
-            var timeout = lockMilliseconds - 10;
+            var timeout = FileLockWithTimeout.MinimumMilliseconds;
             var file = new FileInfo(Path.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
             var secondFileLock = await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
@@ -54,8 +54,12 @@ namespace Xabe.Test
             var timeout = lockMilliseconds;
             var file = new FileInfo(Path.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
-            var secondFileLock = await new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
-            Assert.True(secondFileLock);
+            var secondFileLock = new FileLockWithTimeout(file).TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
+            var completedTask = await Task.WhenAny(firstAcquireTask, secondFileLock);
+            if (completedTask == firstAcquireTask)
+            {
+                Assert.True(await secondFileLock);
+            }
             Assert.True(await firstAcquireTask);
         }
     }
