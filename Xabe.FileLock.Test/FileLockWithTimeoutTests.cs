@@ -73,8 +73,8 @@ namespace Xabe.Test
             using (fileLock)
             {
                 await Task.Delay(lockMilliseconds);
-                return true;
             }
+            return true;
         }
     }
 }
