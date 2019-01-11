@@ -143,6 +143,19 @@ namespace Xabe
                 return false;
             }
 
+            try
+            {
+                return await TryToAcquireBeforeTimeout(lockTime, timeoutMilliseconds, retryMilliseconds, releaseDate);
+            }
+            catch (TaskCanceledException)
+            {
+                return false;
+            }
+        }
+
+        private async Task<bool> TryToAcquireBeforeTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds,
+            DateTime releaseDate)
+        {
             using (var cancellationTokenSource = new CancellationTokenSource(timeoutMilliseconds))
             {
                 var isWaitBeforeRelease = retryMilliseconds == timeoutMilliseconds;
