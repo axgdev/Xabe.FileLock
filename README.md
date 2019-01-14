@@ -1,16 +1,10 @@
-# Xabe.FileLock  
-[![Build Status](https://travis-ci.org/tomaszzmuda/Xabe.FileLock.svg?branch=master)](https://travis-ci.org/tomaszzmuda/Xabe.FileLock)
-[![NuGet version](https://badge.fury.io/nu/Xabe.FileLock.svg)](https://badge.fury.io/nu/Xabe.FileLock)
-[![GitHub issues](https://img.shields.io/github/issues/tomaszzmuda/Xabe.FileLock.svg)](https://github.com/tomaszzmuda/Xabe.FileLock/issues)
-[![GitHub stars](https://img.shields.io/github/stars/tomaszzmuda/Xabe.FileLock.svg)](https://github.com/tomaszzmuda/Xabe.FileLock/stargazers)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/tomaszzmuda/Xabe.FileLock/master/LICENSE.md)
-[![HitCount](http://hits.dwyl.io/tomaszzmuda/Xabe.FileLock.svg)](http://hits.dwyl.io/tomaszzmuda/Xabe.FileLock)
+# Xabe.FileLock.WithTimeout
 
-.NET Standard library providing exclusive lock on file.
+.NET Standard library providing exclusive lock on file. Additional functionality to acquire this lock with a timeout. Forked from: [Xabe.Filelock](https://github.com/tomaszzmuda/Xabe.FileLock)
 
 ## Using ##
 
-Install the [Xabe.FileLock NuGet package](https://www.nuget.org/packages/Xabe.FileLock "") via nuget:
+Install the [Xabe.FileLock.WithTimeout NuGet package](https://www.nuget.org/packages/Xabe.FileLock.WithTimeout "") via nuget:
 
 	PM> Install-Package Xabe.FileLock
 	
@@ -36,6 +30,23 @@ If file already has lock file, and it time haven't expired, method returns false
 		}
 	}
 	
-## Lincence ## 
+## Timeout functionality
+
+Similarly to the code above we can await the FileLock until timeout. Note that refreshing the lock could complicate things:
+
+    ILock fileLock = new FileLockWithTimeout(file);
+    if (await fileLock.TryAcquireOrTimeout(TimeSpan.FromSeconds(15)))
+    {
+        using(fileLock)
+        {
+            // file operations here
+        }
+    }
+    else
+    {
+        // things to do if timeout happens
+    }
+	
+## License ## 
 
 Xabe.FileLock is licensed under MIT - see [License](LICENSE.md) for details.

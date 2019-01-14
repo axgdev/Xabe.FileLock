@@ -1,24 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Xabe.FileLock</PackageId>
-    <PackageVersion>1.0.0</PackageVersion>
-    <PackageLicenseUrl>https://xabe.net/product/xabe_filelock/#license</PackageLicenseUrl>
-    <PackageProjectUrl>https://xabe.net/product/xabe_filelock/</PackageProjectUrl>
-    <PackageTags>file lock filelock file-lock locking files concurrency core</PackageTags>
+    <PackageId>Xabe.FileLock.WithTimeout</PackageId>
+    <PackageVersion>2.0.0</PackageVersion>
+    <PackageLicenseUrl>https://github.com/axgdev/Xabe.FileLock/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/axgdev/Xabe.FileLock</PackageProjectUrl>
+    <PackageTags>file lock filelock file-lock locking files concurrency core timeout</PackageTags>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes></PackageReleaseNotes>
     <TargetFrameworks>netstandard1.3;netcoreapp2.0;net46</TargetFrameworks>
-    <Authors>Tomasz Żmuda</Authors>
-    <Company>Xabe Tomasz Żmuda</Company>
+    <Authors>Tomasz Żmuda, Axel Garcia</Authors>
+    <Company>Xabe Tomasz Żmuda, Axel Garcia</Company>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Description>Cross-platform library providing exclusive lock on file.</Description>
-    <RepositoryUrl>https://github.com/tomaszzmuda/Xabe.FileLock</RepositoryUrl>
+    <Description>Cross-platform library providing exclusive lock on file, with timeout functionality. Forked from: https://xabe.net/product/xabe_filelock/</Description>
+    <RepositoryUrl>https://github.com/axgdev/Xabe.FileLock</RepositoryUrl>
     <RepositoryType>Dependency</RepositoryType>
-    <Copyright>Copyright 2017-2018 (c) Xabe Tomasz Zmuda.</Copyright>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <PackageIconUrl>https://xabe.net/assets/new_xabe_logo-100x100.png</PackageIconUrl>
+    <Copyright>Copyright 2017-2018 (c) Xabe Tomasz Zmuda, 2018 Axel Garcia</Copyright>
+    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <PackageIconUrl></PackageIconUrl>
+    <Product>Xabe.FileLock.WithTimeout</Product>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
