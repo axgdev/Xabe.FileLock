@@ -6,7 +6,7 @@
 
 Install the [Xabe.FileLock.WithTimeout NuGet package](https://www.nuget.org/packages/Xabe.FileLock.WithTimeout "") via nuget:
 
-	PM> Install-Package Xabe.FileLock
+	PM> Install-Package Xabe.FileLock.WithTimeout
 	
 Creating file lock:
 
