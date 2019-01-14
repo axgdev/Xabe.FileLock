@@ -18,8 +18,7 @@ namespace Xabe.Test
 
         public void Dispose()
         {
-            Directory.Delete(FileLockTestPath.TempFolderPath, true);
-            Assert.False(Directory.Exists(FileLockTestPath.TempFolderPath));
+            Assert.True(TryToDeleteTestFolder().Result);
         }
 
         public async Task<bool> TryToDeleteTestFolder()
