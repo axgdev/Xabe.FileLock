@@ -1,17 +1,15 @@
 ﻿using System;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Xabe
 {
-    internal class TimeoutLockModel: LockModel
+    internal class TimeoutLockModel : LockModel
     {
+        internal DateTime CachedReleaseDate;
+
         public TimeoutLockModel(string path) : base(path)
         {
         }
-
-        internal DateTime CachedReleaseDate;
 
         internal new async Task<bool> TrySetReleaseDate(DateTime date)
         {

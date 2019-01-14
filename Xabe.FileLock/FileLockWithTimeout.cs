@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ namespace Xabe
     public class FileLockWithTimeout : ILockWithTimeout
     {
         /// <summary>
-        /// Minimum allowed milliseconds to timeout or retry
+        ///     Minimum allowed milliseconds to timeout or retry
         /// </summary>
         public const int MinimumMilliseconds = 15;
 

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Xabe.Test
 {
-
     [Collection(nameof(FileLockCollection))]
     public class AcquireBeforeReleased
     {
@@ -27,6 +24,7 @@ namespace Xabe.Test
                 var secondFileLock = await secondLock.TryAcquireOrTimeout(TimeSpan.FromMilliseconds(lockMilliseconds), timeout);
                 Assert.False(secondFileLock);
             }
+
             Assert.True(await firstAcquireTask);
         }
     }
@@ -93,6 +91,7 @@ namespace Xabe.Test
             {
                 await Task.Delay(lockMilliseconds);
             }
+
             return true;
         }
     }
