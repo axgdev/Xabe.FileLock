@@ -21,17 +21,19 @@
     <PackageIconUrl></PackageIconUrl>
     <Product>Xabe.FileLock.WithTimeout</Product>
     <FileVersion>2.0.0.0</FileVersion>
+    <AssemblyName>Xabe.FileLock.WithTimeout</AssemblyName>
+    <RootNamespace>Xabe.FileLock.WithTimeout</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netstandard1.3\Xabe.FileLock.xml</DocumentationFile>
-    <DocumentationFile>bin\Release\netcoreapp2.0\Xabe.FileLock.xml</DocumentationFile>
-    <DocumentationFile>bin\Release\net46\Xabe.FileLock.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netstandard1.3\Xabe.FileLock.WithTimeout.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netcoreapp2.0\Xabe.FileLock.WithTimeout.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\net46\Xabe.FileLock.WithTimeout.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netstandard1.3\Xabe.FileLock.xml</DocumentationFile>
-    <DocumentationFile>bin\Debug\netcoreapp2.0\Xabe.FileLock.xml</DocumentationFile>
-    <DocumentationFile>bin\Debug\net46\Xabe.FileLock.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netstandard1.3\Xabe.FileLock.WithTimeout.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\netcoreapp2.0\Xabe.FileLock.WithTimeout.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\net46\Xabe.FileLock.WithTimeout.xml</DocumentationFile>
   </PropertyGroup>
 </Project>
