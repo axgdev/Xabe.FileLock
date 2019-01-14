@@ -33,7 +33,6 @@ namespace Xabe.Test
                     try
                     {
                         Directory.Delete(FileLockTestPath.TempFolderPath, true);
-                        Debug.WriteLine($"Time taken to delete test folder: {timeToDeleteFolder} ms");
                         return true;
                     }
                     catch
@@ -44,7 +43,6 @@ namespace Xabe.Test
                 }
             }
 
-            Debug.WriteLine($"Time taken to delete test folder: {timeToDeleteFolder} ms");
             return false;
         }
     }
