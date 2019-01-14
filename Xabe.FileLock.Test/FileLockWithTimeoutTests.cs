@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace Xabe.Test
 {
-    public class AcquireBeforeReleased : FileCleanDisposable
+    public class AcquireBeforeReleased
     {
         [Theory]
         [InlineData(30)]
@@ -29,7 +29,7 @@ namespace Xabe.Test
         }
     }
 
-    public class AcquireAfterReleased : FileCleanDisposable
+    public class AcquireAfterReleased
     {
         [Theory]
         [InlineData(30)]
@@ -52,7 +52,7 @@ namespace Xabe.Test
         }
     }
 
-    public class AcquireJustWhenReleased : FileCleanDisposable
+    public class AcquireJustWhenReleased
     {
         [Theory]
         [InlineData(30)]
