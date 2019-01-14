@@ -24,8 +24,6 @@ namespace Xabe.Test
                 return true;
             }
 
-            var timeToDeleteFolder = 0;
-
             using (var cancellationTokenSource = new CancellationTokenSource(TimeoutMilliseconds))
             {
                 while (Directory.Exists(FileLockTestPath.TempFolderPath))
@@ -37,7 +35,6 @@ namespace Xabe.Test
                     }
                     catch
                     {
-                        timeToDeleteFolder += PollMilliseconds;
                         await Task.Delay(PollMilliseconds, cancellationTokenSource.Token);
                     }
                 }
