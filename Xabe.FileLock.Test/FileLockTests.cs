@@ -6,7 +6,8 @@ using Path = Xabe.Test.FileLockTestPath;
 
 namespace Xabe.Test
 {
-    public class FileLockTests: FileCleanDisposable
+    [Collection(nameof(FileLockCollection))]
+    public class FileLockTests
     {
         private readonly TimeSpan _timeVariable = TimeSpan.FromSeconds(5);
         private const string Extension = "lock";
@@ -86,7 +87,7 @@ namespace Xabe.Test
         }
 
         [Fact]
-        public async void Dispose()
+        public async void DisposeTest()
         {
             var file = new FileInfo(Path.GetTempFileName());
             ILock fileLock = new FileLock(file);
