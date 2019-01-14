@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Xabe.Test;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Xabe.Test
 {
-    class FileLockFixture: IDisposable
+    internal class FileLockFixture : IDisposable
     {
         private const int TimeoutMilliseconds = 1_000;
         private const int PollMilliseconds = 100;
@@ -31,7 +27,7 @@ namespace Xabe.Test
             var timeToDeleteFolder = 0;
 
             using (var cancellationTokenSource = new CancellationTokenSource(TimeoutMilliseconds))
-            {         
+            {
                 while (Directory.Exists(FileLockTestPath.TempFolderPath))
                 {
                     try
@@ -47,6 +43,7 @@ namespace Xabe.Test
                     }
                 }
             }
+
             Debug.WriteLine($"Time taken to delete test folder: {timeToDeleteFolder} ms");
             return false;
         }
