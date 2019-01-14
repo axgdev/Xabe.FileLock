@@ -7,6 +7,8 @@ using Xunit.Abstractions;
 
 namespace Xabe.Test
 {
+
+    [Collection(nameof(FileLockCollection))]
     public class AcquireBeforeReleased
     {
         [Theory]
@@ -29,6 +31,7 @@ namespace Xabe.Test
         }
     }
 
+    [Collection(nameof(FileLockCollection))]
     public class AcquireAfterReleased
     {
         [Theory]
@@ -52,6 +55,7 @@ namespace Xabe.Test
         }
     }
 
+    [Collection(nameof(FileLockCollection))]
     public class AcquireJustWhenReleased
     {
         [Theory]
