@@ -49,4 +49,4 @@ Similarly to the code above we can await the FileLock until timeout. Note that r
 	
 ## License ## 
 
-Xabe.FileLock is licensed under MIT - see [License](LICENSE.md) for details.
+Xabe.FileLock.WithTimeout is licensed under MIT - see [License](LICENSE.md) for details.
