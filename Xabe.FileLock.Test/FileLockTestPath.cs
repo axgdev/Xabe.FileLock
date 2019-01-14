@@ -12,9 +12,9 @@ namespace Xabe.Test
             {
                 Directory.CreateDirectory(TempFolderPath);
             }
-            var fileInfo = new FileInfo(Path.Combine(TempFolderPath, Path.GetRandomFileName()));
-            fileInfo.Create();
-            return fileInfo.Name;
+            var filePath = Path.Combine(TempFolderPath, Path.GetRandomFileName());
+            File.Create(filePath).Close();
+            return filePath;
         }
 
         public static string ChangeExtension(string path, string extension)
