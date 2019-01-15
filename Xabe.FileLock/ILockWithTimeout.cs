@@ -20,7 +20,7 @@ namespace Xabe
         /// </summary>
         /// <param name="lockTime">Amount of time after that lock is released</param>
         /// <param name="timeoutTime">Amount of time until timeout. Minimum: 15ms</param>
-        /// <param name="retryTime">Amount of time to wait to retry acquiring the lock. Minimum: 15ms, Maximum: <paramref name="timeoutTime"/></param>
+        /// <param name="retryTime">Amount of time to wait to retry acquiring the lock before the official release. Minimum: 15ms, Maximum: <paramref name="timeoutTime"/></param>
         /// <returns>File lock. False if lock already exists</returns>
         Task<bool> TryAcquireOrTimeout(TimeSpan lockTime, TimeSpan timeoutTime, TimeSpan retryTime);
     }
