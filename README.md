@@ -35,7 +35,7 @@ If file already has lock file, and it time haven't expired, method returns false
 Similarly to the code above we can await the FileLock until timeout. Note that refreshing the lock could complicate things:
 
     ILockWithTimeout fileLock = new FileLockWithTimeout(file);
-    if (await fileLock.TryAcquireOrTimeout(TimeSpan.FromSeconds(15)))
+    if (await fileLock.TryAcquireOrTimeout(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30))
     {
         using(fileLock)
         {
