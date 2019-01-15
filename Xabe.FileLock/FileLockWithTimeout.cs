@@ -113,22 +113,22 @@ namespace Xabe
         }
 
         /// <inheritdoc />
-        public async Task<bool> TryAcquireOrTimeout(TimeSpan lockTime, int timeoutMilliseconds)
+        public async Task<bool> TryAcquireOrTimeout(TimeSpan lockTime, TimeSpan timeoutTime)
         {
-            return await TryAcquireOrTimeout(lockTime, timeoutMilliseconds, timeoutMilliseconds);
+            return await TryAcquireOrTimeout(lockTime, timeoutTime, timeoutTime);
         }
 
         /// <inheritdoc />
-        public async Task<bool> TryAcquireOrTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds)
+        public async Task<bool> TryAcquireOrTimeout(TimeSpan lockTime, TimeSpan timeoutTime, TimeSpan retryTime)
         {
-            if (timeoutMilliseconds < MinimumMilliseconds)
+            if (timeoutTime.TotalMilliseconds < MinimumMilliseconds)
             {
-                throw new ArgumentOutOfRangeException(nameof(timeoutMilliseconds));
+                throw new ArgumentOutOfRangeException(nameof(timeoutTime));
             }
 
-            if (retryMilliseconds < MinimumMilliseconds || retryMilliseconds > timeoutMilliseconds)
+            if (retryTime.TotalMilliseconds < MinimumMilliseconds || retryTime > timeoutTime)
             {
-                throw new ArgumentOutOfRangeException(nameof(retryMilliseconds));
+                throw new ArgumentOutOfRangeException(nameof(retryTime));
             }
             
             if (!File.Exists(_path))
@@ -136,7 +136,7 @@ namespace Xabe
                 return await TryAcquire(lockTime);
             }
 
-            var utcTimeWithTimeout = DateTime.UtcNow.AddMilliseconds(timeoutMilliseconds);
+            var utcTimeWithTimeout = DateTime.UtcNow.AddMilliseconds(timeoutTime.TotalMilliseconds);
             var releaseDate = await _content.GetReleaseDate();
             if (releaseDate > utcTimeWithTimeout)
             {
@@ -145,7 +145,7 @@ namespace Xabe
 
             try
             {
-                return await TryToAcquireBeforeTimeout(lockTime, timeoutMilliseconds, retryMilliseconds, releaseDate);
+                return await TryToAcquireBeforeTimeout(lockTime, timeoutTime, retryTime, releaseDate);
             }
             catch (TaskCanceledException)
             {
@@ -153,41 +153,41 @@ namespace Xabe
             }
         }
 
-        private async Task<bool> TryToAcquireBeforeTimeout(TimeSpan lockTime, int timeoutMilliseconds, int retryMilliseconds,
+        private async Task<bool> TryToAcquireBeforeTimeout(TimeSpan lockTime, TimeSpan timeoutTime, TimeSpan retryTime,
             DateTime releaseDate)
         {
-            using (var cts = new CancellationTokenSource(timeoutMilliseconds))
+            using (var cts = new CancellationTokenSource(timeoutTime))
             using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, _cancellationTokenSource.Token))
             {
-                var isWaitBeforeRelease = retryMilliseconds == timeoutMilliseconds;
+                var isWaitBeforeRelease = timeoutTime == retryTime;
                 return isWaitBeforeRelease
                     ? await WaitTillReleaseAcquire(lockTime, releaseDate, linkedCts.Token)
-                    : await RetryBeforeRelease(lockTime, releaseDate, retryMilliseconds, linkedCts.Token);
+                    : await RetryBeforeRelease(lockTime, releaseDate, retryTime, linkedCts.Token);
             }
         }
 
-        private async Task<bool> RetryBeforeRelease(TimeSpan lockTime, DateTime releaseDate, int retryMilliseconds,
+        private async Task<bool> RetryBeforeRelease(TimeSpan lockTime, DateTime releaseDate, TimeSpan retryTime,
             CancellationToken cancellationToken)
         {
             var timeoutRetryBeforeRelease = releaseDate - DateTime.UtcNow;
             using (var retryCancellationTokenSource = new CancellationTokenSource(timeoutRetryBeforeRelease))
             {
-                if (await RetryAcquireLock(lockTime, retryMilliseconds, retryCancellationTokenSource.Token))
+                if (await RetryAcquireLock(lockTime, retryTime, retryCancellationTokenSource.Token))
                 {
                     return true;
                 }
             }
-            return await RetryAcquireLock(lockTime, MinimumMilliseconds, cancellationToken);
+            return await RetryAcquireLock(lockTime, TimeSpan.FromMilliseconds(MinimumMilliseconds), cancellationToken);
         }
 
         private async Task<bool> WaitTillReleaseAcquire(TimeSpan lockTime, DateTime releaseDate, CancellationToken cancellationToken)
         {
             var millisecondsToWait = (int) Math.Ceiling((releaseDate - DateTime.UtcNow).TotalMilliseconds);
             await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0, cancellationToken);
-            return await RetryAcquireLock(lockTime, MinimumMilliseconds, cancellationToken);
+            return await RetryAcquireLock(lockTime, TimeSpan.FromMilliseconds(MinimumMilliseconds), cancellationToken);
         }
 
-        private async Task<bool> RetryAcquireLock(TimeSpan lockTime, int retryMilliseconds, CancellationToken cancellationToken)
+        private async Task<bool> RetryAcquireLock(TimeSpan lockTime, TimeSpan retryTime, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -195,7 +195,7 @@ namespace Xabe
                 {
                     return true;
                 }
-                await Task.Delay(retryMilliseconds, cancellationToken);
+                await Task.Delay(retryTime, cancellationToken);
             }
 
             return false;

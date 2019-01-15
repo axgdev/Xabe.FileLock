@@ -16,7 +16,7 @@ namespace Xabe.Test
         [InlineData(150)]
         public async void TryToAcquireLockBeforeItIsReleased(int lockMilliseconds)
         {
-            var timeout = FileLockWithTimeout.MinimumMilliseconds;
+            var timeout = TimeSpan.FromMilliseconds(FileLockWithTimeout.MinimumMilliseconds);
             var file = new FileInfo(FileLockTestPath.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, lockMilliseconds);
             using (var secondLock = new FileLockWithTimeout(file))
@@ -40,7 +40,7 @@ namespace Xabe.Test
         [InlineData(150)]
         public async void TryToAcquireLockAfterItIsReleased(int lockMilliseconds)
         {
-            var timeout = lockMilliseconds * 10;
+            var timeout = TimeSpan.FromMilliseconds(lockMilliseconds * 10);
             var file = new FileInfo(FileLockTestPath.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, 0);
             using (var secondLock = new FileLockWithTimeout(file))
@@ -64,7 +64,7 @@ namespace Xabe.Test
         [InlineData(150)]
         public async void TryAcquireLockJustWhenReleased(int lockMilliseconds)
         {
-            var timeout = lockMilliseconds;
+            var timeout = TimeSpan.FromMilliseconds(lockMilliseconds);
             var file = new FileInfo(FileLockTestPath.GetTempFileName());
             var firstAcquireTask = await Helpers.AcquireLockAndReleaseAfterDelay(file, FileLockWithTimeout.MinimumMilliseconds);
             using (var secondLock = new FileLockWithTimeout(file))
@@ -98,8 +98,8 @@ namespace Xabe.Test
             using (var secondLock = new FileLockWithTimeout(file))
             {
                 var secondLockTimeout = TimeSpan.FromMilliseconds(lockMilliseconds);
-                const int secondLockRetryMs = FileLockWithTimeout.MinimumMilliseconds;
-                var timeoutMs = lockMilliseconds;
+                var secondLockRetryMs = TimeSpan.FromMilliseconds(FileLockWithTimeout.MinimumMilliseconds);
+                var timeoutMs = TimeSpan.FromMilliseconds(lockMilliseconds);
                 var secondFileLock = secondLock.TryAcquireOrTimeout(secondLockTimeout, timeoutMs, secondLockRetryMs);
                 Assert.True(await Task.WhenAny(secondFileLock, Task.Delay(maximumTimeToWait)) == secondFileLock);
             }
