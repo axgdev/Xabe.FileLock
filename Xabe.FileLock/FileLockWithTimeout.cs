@@ -180,7 +180,8 @@ namespace Xabe
             return await RetryAcquireLock(lockTime, TimeSpan.FromMilliseconds(MinimumMilliseconds), cancellationToken);
         }
 
-        private async Task<bool> WaitTillReleaseAcquire(TimeSpan lockTime, DateTime releaseDate, CancellationToken cancellationToken)
+        private async Task<bool> WaitTillReleaseAcquire(TimeSpan lockTime, DateTime releaseDate,
+            CancellationToken cancellationToken)
         {
             var millisecondsToWait = (int) Math.Ceiling((releaseDate - DateTime.UtcNow).TotalMilliseconds);
             await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0, cancellationToken);
