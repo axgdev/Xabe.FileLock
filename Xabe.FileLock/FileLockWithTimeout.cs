@@ -170,6 +170,7 @@ namespace Xabe
             CancellationToken cancellationToken)
         {
             var timeoutRetryBeforeRelease = releaseDate - DateTime.UtcNow;
+            timeoutRetryBeforeRelease = timeoutRetryBeforeRelease.TotalMilliseconds > 0 ? timeoutRetryBeforeRelease : TimeSpan.Zero;
             using (var retryCancellationTokenSource = new CancellationTokenSource(timeoutRetryBeforeRelease))
             {
                 if (await RetryAcquireLock(lockTime, retryTime, retryCancellationTokenSource.Token))
