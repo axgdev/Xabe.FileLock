@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Xabe.FileLock.WithTimeout</PackageId>
-    <PackageVersion>2.0.0</PackageVersion>
+    <PackageVersion>2.1.0</PackageVersion>
     <PackageLicenseUrl>https://github.com/axgdev/Xabe.FileLock/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/axgdev/Xabe.FileLock</PackageProjectUrl>
     <PackageTags>file lock filelock file-lock locking files concurrency core timeout</PackageTags>
@@ -16,8 +16,8 @@
     <RepositoryUrl>https://github.com/axgdev/Xabe.FileLock</RepositoryUrl>
     <RepositoryType>Dependency</RepositoryType>
     <Copyright>Copyright 2017-2018 (c) Xabe Tomasz Zmuda, 2018 Axel Garcia</Copyright>
-    <Version>2.0.0</Version>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <Version>2.1.0</Version>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
     <PackageIconUrl></PackageIconUrl>
     <Product>Xabe.FileLock.WithTimeout</Product>
     <FileVersion>2.0.0.0</FileVersion>
