@@ -177,6 +177,9 @@ namespace Xabe
             }, _cancellationTokenSource.Token);
         }
 
+        /// <summary>
+        /// Exception is ignored as there is nothing to do if we cannot delete the lock file
+        /// </summary>
         private void ReleaseLock()
         {
             if (!IsLockStillValid().Result)
