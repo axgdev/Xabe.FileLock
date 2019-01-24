@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
@@ -107,6 +108,31 @@ namespace Xabe.Test
             Assert.True(await firstAcquireTask);
         }
 
+    }
+
+    [Collection(nameof(FileLockCollection))]
+    public class ShouldGetOutBeforeLockTime
+    {
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(4)]
+        [InlineData(5)]
+        public async void LockShouldNotWaitTillTimeoutToBeAcquiredIfNotLocked(int lockSeconds)
+        {
+            var file = new FileInfo(FileLockTestPath.GetTempFileName());
+            var fileLock = new FileLockWithTimeout(file);
+            using (fileLock)
+            {
+                var stopWatch = new Stopwatch();
+                stopWatch.Start();
+                await fileLock.TryAcquireOrTimeout(TimeSpan.FromSeconds(lockSeconds),
+                    TimeSpan.FromSeconds(lockSeconds));
+                stopWatch.Stop();
+                Assert.True(stopWatch.ElapsedMilliseconds < lockSeconds * 1000 / 2);
+            }
+        }
     }
 
     public class Helpers
