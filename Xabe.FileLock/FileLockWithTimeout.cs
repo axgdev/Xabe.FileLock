@@ -2,6 +2,8 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Polly;
+using Polly.Wrap;
 
 namespace Xabe
 {
@@ -143,64 +145,23 @@ namespace Xabe
                 return false;
             }
 
-            try
-            {
-                return await TryToAcquireBeforeTimeout(lockTime, timeoutTime, retryTime, releaseDate);
-            }
-            catch (TaskCanceledException)
-            {
-                return false;
-            }
-        }
+            var fallbackPolicy = Policy<bool>
+                .Handle<Exception>()
+                .FallbackAsync(false);
 
-        private async Task<bool> TryToAcquireBeforeTimeout(TimeSpan lockTime, TimeSpan timeoutTime, TimeSpan retryTime,
-            DateTime releaseDate)
-        {
-            using (var cts = new CancellationTokenSource(timeoutTime))
-            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, _cancellationTokenSource.Token))
-            {
-                var isWaitBeforeRelease = timeoutTime == retryTime;
-                return isWaitBeforeRelease
-                    ? await WaitTillReleaseAcquire(lockTime, releaseDate, linkedCts.Token)
-                    : await RetryBeforeRelease(lockTime, releaseDate, retryTime, linkedCts.Token);
-            }
-        }
+            var timeoutPolicy = Policy
+                .TimeoutAsync<bool>(timeoutTime);
 
-        private async Task<bool> RetryBeforeRelease(TimeSpan lockTime, DateTime releaseDate, TimeSpan retryTime,
-            CancellationToken cancellationToken)
-        {
-            var timeoutRetryBeforeRelease = releaseDate - DateTime.UtcNow;
-            timeoutRetryBeforeRelease = timeoutRetryBeforeRelease.TotalMilliseconds > 0 ? timeoutRetryBeforeRelease : TimeSpan.Zero;
-            using (var retryCancellationTokenSource = new CancellationTokenSource(timeoutRetryBeforeRelease))
-            {
-                if (await RetryAcquireLock(lockTime, retryTime, retryCancellationTokenSource.Token))
-                {
-                    return true;
-                }
-            }
-            return await RetryAcquireLock(lockTime, TimeSpan.FromMilliseconds(MinimumMilliseconds), cancellationToken);
-        }
+            var retryPolicy = Policy<bool>
+                .HandleResult(r => r == false)
+                .WaitAndRetryForeverAsync(retryAttempt => retryTime);
+            
+            var retryBeforeRelease = timeoutTime != retryTime;
+            var wrappedPolicy = retryBeforeRelease
+                ? Policy.WrapAsync(fallbackPolicy, timeoutPolicy, retryPolicy)
+                : Policy.WrapAsync(fallbackPolicy, timeoutPolicy);
 
-        private async Task<bool> WaitTillReleaseAcquire(TimeSpan lockTime, DateTime releaseDate,
-            CancellationToken cancellationToken)
-        {
-            var millisecondsToWait = (int) Math.Ceiling((releaseDate - DateTime.UtcNow).TotalMilliseconds);
-            await Task.Delay(millisecondsToWait > 0 ? millisecondsToWait : 0, cancellationToken);
-            return await RetryAcquireLock(lockTime, TimeSpan.FromMilliseconds(MinimumMilliseconds), cancellationToken);
-        }
-
-        private async Task<bool> RetryAcquireLock(TimeSpan lockTime, TimeSpan retryTime, CancellationToken cancellationToken)
-        {
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                if (await TryAcquire(lockTime))
-                {
-                    return true;
-                }
-                await Task.Delay(retryTime, cancellationToken);
-            }
-
-            return false;
+            return await wrappedPolicy.ExecuteAsync(async ct => await TryAcquire(lockTime), _cancellationTokenSource.Token);
         }
 
         private void ContinuousRefreshTask(TimeSpan lockTime)
