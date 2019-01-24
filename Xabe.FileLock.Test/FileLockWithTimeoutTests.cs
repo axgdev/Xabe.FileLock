@@ -81,19 +81,19 @@ namespace Xabe.Test
     [Collection(nameof(FileLockCollection))]
     public class AcquireLockBeforeOfficialRelease
     {
-        //Minimum time is 15ms. So the lockMilliseconds (x) should be x/2 > 30ms, because if x/3 >= 15ms
-        //there is time to try a second time without timing out. Besides x % 6 == 0, to make it divisible
-        //between 3 and 2.
+        //Minimum time is 15ms. So the lockMilliseconds (x) should be x > 60ms, because if x/4 >= 15ms there is time
+        //to try at least a second time without timing out, because of the timeout in this test set to x - 15ms
+        //Besides x % 4 == 0, to make it divisible between 4.
         [Theory]
-        [InlineData(66)]
+        [InlineData(64)]
+        [InlineData(68)]
         [InlineData(72)]
-        [InlineData(78)]
-        [InlineData(84)]
-        [InlineData(90)]
+        [InlineData(76)]
+        [InlineData(80)]
         public async void TryToAcquireLockBeforeOfficialRelease(int lockMilliseconds)
         {
-            var timeToRelease = lockMilliseconds / 3;
-            var maximumTimeToWait = lockMilliseconds / 2;
+            var timeToRelease = lockMilliseconds / 4;
+            var maximumTimeToWait = lockMilliseconds - FileLockWithTimeout.MinimumMilliseconds;
             var file = new FileInfo(FileLockTestPath.GetTempFileName());
             var firstAcquireTask = Helpers.AcquireLockAndReleaseAfterDelay(file, timeToRelease);
             using (var secondLock = new FileLockWithTimeout(file))
