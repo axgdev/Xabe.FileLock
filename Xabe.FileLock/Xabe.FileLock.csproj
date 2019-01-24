@@ -36,4 +36,8 @@
     <DocumentationFile>bin\Debug\netcoreapp2.0\Xabe.FileLock.WithTimeout.xml</DocumentationFile>
     <DocumentationFile>bin\Debug\net46\Xabe.FileLock.WithTimeout.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Polly" Version="6.1.2" />
+  </ItemGroup>
 </Project>
