@@ -18,6 +18,7 @@ namespace Xabe
         /// </summary>
         public const int MinimumMilliseconds = 15;
 
+        private readonly TimeSpan _defaultRetryTime = TimeSpan.FromMilliseconds(MinimumMilliseconds);
         private const string Extension = "lock";
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly TimeoutLockModel _content;
@@ -138,7 +139,8 @@ namespace Xabe
                 return await TryAcquire(lockTime);
             }
 
-            var utcTimeWithTimeout = DateTime.UtcNow.AddMilliseconds(timeoutTime.TotalMilliseconds);
+            var utcNow = DateTime.UtcNow;
+            var utcTimeWithTimeout = utcNow.AddMilliseconds(timeoutTime.TotalMilliseconds);
             var releaseDate = await _content.GetReleaseDate();
             if (releaseDate > utcTimeWithTimeout)
             {
@@ -149,17 +151,27 @@ namespace Xabe
                 .Handle<Exception>()
                 .FallbackAsync(false);
 
+            var timeToRelease = releaseDate - utcNow;
+            //A zero time span is not allowed, hence we put the minimum accepted time of 0.5 milliseconds
+            timeToRelease = timeToRelease > TimeSpan.Zero ? timeToRelease : TimeSpan.FromMilliseconds(0.5);
+            var releaseTimeoutPolicy = Policy
+                .TimeoutAsync<bool>(timeToRelease);
+                
             var timeoutPolicy = Policy
                 .TimeoutAsync<bool>(timeoutTime);
 
             var retryPolicy = Policy<bool>
                 .HandleResult(r => r == false)
                 .WaitAndRetryForeverAsync(retryAttempt => retryTime);
+
+            var defaultRetryPolicy = Policy<bool>
+                .HandleResult(r => r == false)
+                .WaitAndRetryForeverAsync(retryAttempt => _defaultRetryTime);
             
             var retryBeforeRelease = timeoutTime != retryTime;
             var wrappedPolicy = retryBeforeRelease
                 ? Policy.WrapAsync(fallbackPolicy, timeoutPolicy, retryPolicy)
-                : Policy.WrapAsync(fallbackPolicy, timeoutPolicy);
+                : Policy.WrapAsync(fallbackPolicy, timeoutPolicy, defaultRetryPolicy, releaseTimeoutPolicy);
 
             return await wrappedPolicy.ExecuteAsync(async ct => await TryAcquire(lockTime), _cancellationTokenSource.Token);
         }
