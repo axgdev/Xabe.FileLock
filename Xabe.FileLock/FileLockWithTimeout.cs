@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Polly;
-using Polly.Wrap;
 
 namespace Xabe
 {
@@ -23,10 +22,6 @@ namespace Xabe
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly TimeoutLockModel _content;
         private readonly string _path;
-
-        private FileLockWithTimeout()
-        {
-        }
 
         /// <inheritdoc />
         /// <summary>
