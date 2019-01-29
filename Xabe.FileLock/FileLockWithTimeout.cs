@@ -54,7 +54,7 @@ namespace Xabe
         {
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
-            ReleaseLock();
+            Task.Run(ReleaseLock);
         }
 
         /// <inheritdoc />
@@ -180,9 +180,9 @@ namespace Xabe
         /// <summary>
         /// Exception is ignored as there is nothing to do if we cannot delete the lock file
         /// </summary>
-        private void ReleaseLock()
+        private async Task ReleaseLock()
         {
-            if (!IsLockStillValid().Result)
+            if (!await IsLockStillValid())
             {
                 return;
             }
